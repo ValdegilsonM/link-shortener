@@ -34,7 +34,7 @@ export function CreateLinkForm() {
       
       // Monta o link curto final para exibição
       const shortCode = response.data.code;
-      setCreatedLink(`http://localhost:8080/${shortCode}`);
+      setCreatedLink(`${window.location.origin}/${shortCode}`);
       
       // Limpa os campos após sucesso
       setUrl('');

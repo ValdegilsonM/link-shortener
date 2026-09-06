@@ -8,10 +8,12 @@ COPY . .
 RUN npm run build
 
 # ETAPA 2: Servidor Web (Nginx)
-# O React compilado são apenas arquivos estáticos. Usamos o Nginx, um servidor web ultrarrápido, para servi-los.
 FROM nginx:alpine
+
+# Copiamos o nosso arquivo de configuração personalizado substituindo o padrão do Nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Copiamos os arquivos gerados no build para a pasta padrão do Nginx
 COPY --from=builder /app/dist /usr/share/nginx/html
 EXPOSE 80
-# Ligamos o Nginx em primeiro plano
 CMD ["nginx", "-g", "daemon off;"]
