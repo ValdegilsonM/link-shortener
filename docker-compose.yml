@@ -5,3 +5,21 @@ services:
     ports:
       - "8000:8000"
     command: "-jar DynamoDBLocal.jar -inMemory -sharedDb"
+
+  backend:
+    build: . # Lê o Dockerfile da pasta atual
+    container_name: nimbloo-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - dynamodb-local
+    environment:
+      - AWS_DYNAMODB_ENDPOINT=http://dynamodb-local:8000 # O backend passa a acessar o banco pelo nome do contêiner
+
+  frontend:
+    build: ./nimbloo-web # Lê o Dockerfile da pasta do frontend
+    container_name: nimbloo-frontend
+    ports:
+      - "5173:80" # Mapeia a porta 5173 do seu PC para a porta 80 do Nginx
+    depends_on:
+      - backend

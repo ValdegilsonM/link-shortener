@@ -1,0 +1,20 @@
+# ETAPA 1: Construção (Build)
+# Usamos uma imagem completa do Java com Maven para compilar o código
+FROM maven:3.9.6-eclipse-temurin-21 AS builder
+WORKDIR /app
+# Copiamos os arquivos do projeto para dentro do contêiner
+COPY pom.xml .
+COPY src ./src
+# Rodamos o comando do Maven para gerar o arquivo .jar (ignorando testes para ser mais rápido)
+RUN mvn clean package -DskipTests
+
+# ETAPA 2: Execução (Run)
+# Usamos uma imagem Java mínima apenas para rodar o projeto, economizando memória
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+# Copiamos apenas o .jar final da ETAPA 1 para esta imagem limpa
+COPY --from=builder /app/target/*.jar app.jar
+# Expomos a porta que o Spring Boot usa
+EXPOSE 8080
+# Comando que será executado quando o contêiner ligar
+ENTRYPOINT ["java", "-jar", "app.jar"]
