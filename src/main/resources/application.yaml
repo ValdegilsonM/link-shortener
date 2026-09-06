@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: link-shortener
+aws:
+  dynamodb:
+    endpoint: http://localhost:8000
+  region: sa-east-1
+  accessKeyId: fakeMyKeyId
+  secretAccessKey: fakeSecretAccessKey
