@@ -35,6 +35,17 @@ export function LinkList() {
     fetchLinks();
   }, []);
 
+  const handleDisable = async (code: string) => {
+    if (!window.confirm('Tem certeza que deseja desativar este link?')) return;
+    
+    try {
+      await axios.delete(`http://localhost:8080/api/v1/links/${code}`);
+      fetchLinks(); // Recarrega a lista para atualizar o status e a interface
+    } catch (err) {
+      alert('Erro ao desativar o link. Tente novamente.');
+    }
+  };
+
   // Lógica para determinar o status dinamicamente (Ativo, Expirado ou Desativado)
   const getStatus = (link: Link) => {
     if (!link.active) return 'Desativado';
@@ -75,22 +86,32 @@ export function LinkList() {
             <thead>
               <tr style={{ backgroundColor: '#f2f2f2' }}>
                 <th style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>Código</th>
-                <th style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>Destino</th>
+                {/* Mudamos para mostrar o Link Curto em vez do destino longo */}
+                <th style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>Link Curto</th> 
                 <th style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>Cliques</th>
                 <th style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>Status</th>
                 <th style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>Criado em</th>
+                <th style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>Ações</th>
               </tr>
             </thead>
             <tbody>
               {links.map((link) => (
                 <tr key={link.code}>
                   <td style={{ padding: '10px', borderBottom: '1px solid #ddd', fontWeight: 'bold' }}>{link.code}</td>
-                  <td style={{ padding: '10px', borderBottom: '1px solid #ddd', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    <a href={link.originalUrl} target="_blank" rel="noopener noreferrer" title={link.originalUrl}>
-                      {link.originalUrl}
+                  
+                  {/* CORREÇÃO DOS CLIQUES: Apontando para o backend */}
+                  <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
+                    <a 
+                      href={`http://localhost:8080/${link.code}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                    >
+                      http://localhost:8080/{link.code}
                     </a>
                   </td>
+                  
                   <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{link.clicks}</td>
+                  
                   <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
                     <span style={{ 
                       color: getStatus(link) === 'Ativo' ? 'green' : 'red',
@@ -99,7 +120,26 @@ export function LinkList() {
                       {getStatus(link)}
                     </span>
                   </td>
+                  
                   <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{formatDate(link.createdAt)}</td>
+                  
+                  {/* NOVA COLUNA: Botão de desativar */}
+                  <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
+                    <button 
+                      onClick={() => handleDisable(link.code)}
+                      disabled={!link.active} // Desabilita o botão se já estiver desativado
+                      style={{ 
+                        padding: '5px 10px', 
+                        cursor: link.active ? 'pointer' : 'not-allowed',
+                        backgroundColor: link.active ? '#ff4d4d' : '#ccc',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px'
+                      }}
+                    >
+                      Desativar
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
